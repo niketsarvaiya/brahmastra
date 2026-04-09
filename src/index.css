@@ -1,0 +1,126 @@
+@import "tailwindcss";
+
+@theme {
+  --color-surface-0: #0a0b0f;
+  --color-surface-1: #0f1117;
+  --color-surface-2: #161820;
+  --color-surface-3: #1e2028;
+  --color-surface-4: #252830;
+
+  --color-border: rgba(255, 255, 255, 0.06);
+  --color-border-strong: rgba(255, 255, 255, 0.12);
+
+  --color-text-primary: #f0f1f3;
+  --color-text-secondary: #8b8fa8;
+  --color-text-muted: #565a72;
+
+  --color-accent: #6366f1;
+  --color-accent-hover: #4f52e0;
+  --color-accent-dim: rgba(99, 102, 241, 0.12);
+
+  --color-success: #10b981;
+  --color-success-dim: rgba(16, 185, 129, 0.12);
+
+  --color-warning: #f59e0b;
+  --color-warning-dim: rgba(245, 158, 11, 0.12);
+
+  --color-critical: #ef4444;
+  --color-critical-dim: rgba(239, 68, 68, 0.12);
+
+  --color-info: #3b82f6;
+  --color-info-dim: rgba(59, 130, 246, 0.12);
+
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+}
+
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: #0a0b0f;
+    color: #f0f1f3;
+    font-family: var(--font-sans);
+    line-height: 1.5;
+    overflow-x: hidden;
+  }
+
+  #root {
+    width: 100%;
+    min-height: 100svh;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.1) transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 4px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+  }
+
+  .card {
+    background: #161820;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+  }
+
+  .card-elevated {
+    background: #1e2028;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+  }
+
+  .input-field {
+    background: #0f1117;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    color: #f0f1f3;
+    padding: 10px 14px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s ease;
+    width: 100%;
+  }
+  .input-field:focus {
+    border-color: rgba(99, 102, 241, 0.5);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.08);
+  }
+  .input-field::placeholder {
+    color: #565a72;
+  }
+
+  .label {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #8b8fa8;
+    margin-bottom: 6px;
+    display: block;
+  }
+}
