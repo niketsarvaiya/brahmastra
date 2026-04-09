@@ -67,7 +67,7 @@ export function NetworkAuditTool() {
   }
 
   return (
-    <div className="p-6 max-w-[1300px] mx-auto">
+    <div className="p-4 md:p-6 max-w-[1300px] mx-auto">
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-1">
           <h2 className="text-[22px] font-semibold text-white">Network Audit</h2>
@@ -107,7 +107,7 @@ export function NetworkAuditTool() {
                 <FormField label="Actual Download"><NumberInput value={inputs.actualDown} onChange={v => set('actualDown', v)} min={0} max={10000} step={1} unit="Mbps" placeholder="0" /></FormField>
                 <FormField label="Actual Upload"><NumberInput value={inputs.actualUp} onChange={v => set('actualUp', v)} min={0} max={10000} step={1} unit="Mbps" placeholder="0" /></FormField>
               </div>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <FormField label="Ping"><NumberInput value={inputs.pingMs} onChange={v => set('pingMs', v)} min={0} max={500} step={1} unit="ms" placeholder="15" /></FormField>
                 <FormField label="Jitter"><NumberInput value={inputs.jitterMs} onChange={v => set('jitterMs', v)} min={0} max={200} step={0.5} unit="ms" placeholder="2" /></FormField>
                 <FormField label="Packet Loss"><NumberInput value={inputs.packetLossPct} onChange={v => set('packetLossPct', v)} min={0} max={100} step={0.1} unit="%" placeholder="0" /></FormField>
@@ -309,7 +309,7 @@ function ZoneRow({ zone, index, onChange, onRemove }: { zone: WifiZone; index: n
           <Trash2 size={13} />
         </button>
       </div>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
         <FormField label="RSSI">
           <div className="relative">
             <input type="number" className="input-field" value={zone.rssi === '' ? '' : zone.rssi}

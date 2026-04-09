@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
@@ -21,27 +21,48 @@ export function Layout({
   onPrint,
   onExport,
 }: LayoutProps) {
-  const [sidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+
+  const handleToolSelect = (id: ToolId) => {
+    onToolSelect(id);
+    if (isMobile) setMobileOpen(false);
+  };
+
   const activeTool = tools.find((t) => t.id === activeToolId)!;
+  const contentMarginLeft = isMobile ? 0 : sidebarCollapsed ? '60px' : '230px';
 
   return (
     <div className="flex h-svh overflow-hidden" style={{ background: '#0a0b0f' }}>
       <Sidebar
         activeToolId={activeToolId}
-        onToolSelect={onToolSelect}
+        onToolSelect={handleToolSelect}
         tools={tools}
+        collapsed={sidebarCollapsed}
+        onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+        mobileOpen={mobileOpen}
+        onMobileClose={() => setMobileOpen(false)}
+        isMobile={isMobile}
       />
 
-      {/* Main content area — offset by sidebar width */}
       <div
         className="flex flex-col flex-1 min-w-0 transition-all duration-300"
-        style={{ marginLeft: sidebarCollapsed ? '60px' : '230px' }}
+        style={{ marginLeft: contentMarginLeft }}
       >
         <TopBar
           tool={activeTool}
           onPrint={onPrint}
           onExport={onExport}
           showActions={activeToolId !== 'home'}
+          onMobileMenuOpen={() => setMobileOpen(true)}
+          isMobile={isMobile}
         />
         <main className="flex-1 overflow-y-auto scrollbar-thin">
           {children}

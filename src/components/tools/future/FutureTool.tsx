@@ -87,7 +87,7 @@ export function FutureTool({ tool }: FutureToolProps) {
   const Icon = detail.icon;
 
   return (
-    <div className="p-6 max-w-[900px] mx-auto">
+    <div className="p-4 md:p-6 max-w-[900px] mx-auto">
       {/* Hero */}
       <div
         className="rounded-[20px] p-8 mb-6 flex flex-col items-center text-center gap-4"

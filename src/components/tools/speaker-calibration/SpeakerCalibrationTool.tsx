@@ -92,7 +92,7 @@ export function SpeakerCalibrationTool() {
   const subChannels = activeChannels.filter(ch => isSub(ch));
 
   return (
-    <div className="p-6 max-w-[1300px] mx-auto">
+    <div className="p-4 md:p-6 max-w-[1300px] mx-auto">
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-1">

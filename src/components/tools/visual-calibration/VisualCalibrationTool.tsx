@@ -42,7 +42,7 @@ export function VisualCalibrationTool() {
   }
 
   return (
-    <div className="p-6 max-w-[1200px] mx-auto">
+    <div className="p-4 md:p-6 max-w-[1200px] mx-auto">
       {/* Page header */}
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-1">

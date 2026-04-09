@@ -51,10 +51,10 @@ export function Home({ tools, onToolSelect }: HomeProps) {
   const futureTools = tools.filter((t) => t.category === 'future');
 
   return (
-    <div className="p-6 max-w-[1100px] mx-auto">
+    <div className="p-4 md:p-6 max-w-[1100px] mx-auto">
       {/* Hero section */}
       <div
-        className="rounded-[20px] p-8 mb-8 relative overflow-hidden"
+        className="rounded-[16px] md:rounded-[20px] p-5 md:p-8 mb-6 md:mb-8 relative overflow-hidden"
         style={{
           background: 'linear-gradient(135deg, #161820 0%, #1a1b26 100%)',
           border: '1px solid rgba(255,255,255,0.07)',
@@ -88,13 +88,13 @@ export function Home({ tools, onToolSelect }: HomeProps) {
             </div>
           </div>
 
-          <h1 className="text-[32px] font-bold text-white leading-tight mb-4 max-w-[580px]">
+          <h1 className="text-[24px] md:text-[32px] font-bold text-white leading-tight mb-3 md:mb-4">
             Engineering intelligence
             <br />
             <span style={{ color: '#6366f1' }}>embedded into execution.</span>
           </h1>
 
-          <p className="text-[15px] leading-relaxed max-w-[560px] mb-6" style={{ color: '#8b8fa8' }}>
+          <p className="text-[13px] md:text-[15px] leading-relaxed mb-5 md:mb-6" style={{ color: '#8b8fa8' }}>
             Brahmastra Tools is the internal platform for validating system performance on-site.
             Capture real-world data, surface hidden issues, and generate engineering reports —
             before handover, not after.
@@ -140,7 +140,7 @@ export function Home({ tools, onToolSelect }: HomeProps) {
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
           {activeTools.map((tool) => (
             <ActiveToolCard
               key={tool.id}

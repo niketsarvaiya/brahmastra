@@ -64,7 +64,7 @@ export function ThermalLoadTool() {
   }
 
   return (
-    <div className="p-6 max-w-[1200px] mx-auto">
+    <div className="p-4 md:p-6 max-w-[1200px] mx-auto">
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-1">
@@ -268,7 +268,7 @@ function EquipmentRow({
         </button>
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
         <FormField label="Category">
           <SelectInput
             value={equipment.category}
