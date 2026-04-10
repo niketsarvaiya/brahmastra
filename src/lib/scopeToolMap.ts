@@ -19,6 +19,7 @@ const VISUAL_KEYS = new Set([
   'av.display-tv',
   'av.video-wall',
   'av.led-display',
+  'av.tv',
 ]);
 
 const AUDIO_KEYS = new Set([
@@ -49,6 +50,10 @@ const AUTOMATION_KEYS = new Set([
   'processors.savant',
   'processors.lutron',
   'processors.rako',
+  'processors.basalte',
+  'processors.parriot',
+  'processors.cue',
+  'general.basalte-processor',
 ]);
 
 function hasAnyKey(
@@ -122,6 +127,19 @@ export function getToolsForProject(project: BrahmastraProject): ToolId[] {
     tools.push('system-responsiveness');
   }
 
+  // system-responsiveness — also triggered by lighting/AC automation (implies processor)
+  if (
+    hasKeyWithPrefix(canonicalKeys, 'lighting.') ||
+    hasKeyWithPrefix(canonicalKeys, 'ac.') ||
+    scopes.has('Backend Lighting') ||
+    scopes.has('Temp / AC')
+  ) {
+    if (!tools.includes('system-responsiveness')) tools.push('system-responsiveness');
+    // lighting/AC automation also implies a backend rack for the DB
+    if (!tools.includes('thermal-load')) tools.push('thermal-load');
+    if (!tools.includes('airflow')) tools.push('airflow');
+  }
+
   // av-commissioning — any AV items
   if (
     hasAnyKey(canonicalKeys, VISUAL_KEYS) ||
@@ -158,4 +176,20 @@ export const TOOL_ORDER: ToolId[] = [
 export function getSortedTools(toolIds: ToolId[]): ToolId[] {
   const set = new Set(toolIds);
   return TOOL_ORDER.filter((id) => set.has(id));
+}
+
+// Security scope: no dedicated tool yet, but flag presence for ProjectHome display
+export const SECURITY_KEYS = new Set([
+  'security.cctv',
+  'security.vdp',
+  'security.ipbx',
+  'security.readers',
+  'security.locks',
+]);
+
+export function getSecurityItems(project: BrahmastraProject): string[] {
+  if (!project.boqData) return [];
+  return project.boqData.lineItems
+    .filter((i) => i.included && i.canonicalKey && SECURITY_KEYS.has(i.canonicalKey))
+    .map((i) => i.product);
 }

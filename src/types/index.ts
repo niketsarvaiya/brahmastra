@@ -66,6 +66,9 @@ export interface BrahmastraProject {
   updatedAt: string
   boqData?: BOQProject
   activeToolIds: ToolId[]  // manually toggled tools (overrides or supplements BOQ detection)
+  boqProjectId?: string       // original BOQ Builder project ID for live sync
+  boqSyncOrigin?: string      // e.g. 'http://localhost:5175'
+  boqLastSyncAt?: string      // ISO timestamp
 }
 
 export interface BOQProject {

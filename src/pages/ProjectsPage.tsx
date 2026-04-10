@@ -63,7 +63,16 @@ export function ProjectsPage({ projects, onOpenProject, onProjectsChange }: Proj
   function handleCreateProject() {
     if (!form.name.trim()) return;
     const project: BrahmastraProject = boqParsed
-      ? { ...boqParsed, name: form.name, client: form.client, location: form.location, projectCode: form.projectCode, updatedAt: new Date().toISOString() }
+      ? {
+          ...boqParsed,
+          name: form.name,
+          client: form.client,
+          location: form.location,
+          projectCode: form.projectCode,
+          updatedAt: new Date().toISOString(),
+          boqProjectId: boqParsed.boqData?.id,
+          boqSyncOrigin: 'http://localhost:5175',
+        }
       : {
           id: crypto.randomUUID(),
           name: form.name,
@@ -269,6 +278,12 @@ export function ProjectsPage({ projects, onOpenProject, onProjectsChange }: Proj
               )}
             </div>
             {boqError && <div style={{ fontSize: '12px', color: '#ef4444', marginBottom: '12px', marginTop: '-12px' }}>{boqError}</div>}
+
+            {boqParsed && (
+              <div style={{ fontSize: '11px', color: '#565a72', marginTop: '-10px', marginBottom: '12px', padding: '8px 12px', borderRadius: '6px', background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.1)' }}>
+                Live sync enabled — Brahmastra will pull updates from BOQ Builder on demand.
+              </div>
+            )}
 
             {/* Form fields */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '24px' }}>

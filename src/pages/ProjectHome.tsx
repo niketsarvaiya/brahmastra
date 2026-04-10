@@ -1,10 +1,14 @@
+import { useState } from 'react';
 import type { BrahmastraProject, ToolMeta } from '../types';
-import { Folder, MapPin, Hash, Calendar, Package, ChevronRight } from 'lucide-react';
+import { Folder, MapPin, Hash, Calendar, Package, ChevronRight, RefreshCw, Shield, Camera } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import {
   MonitorPlay, Thermometer, Wind, Speaker, Wifi, Zap, ShieldCheck, CheckSquare, Network,
 } from 'lucide-react';
 import type { ToolId } from '../types';
+import { requestBOQSync, useBOQMessageListener } from '../lib/boqSync';
+import { getSecurityItems } from '../lib/scopeToolMap';
+import { saveProject } from '../lib/projectStorage';
 
 const TOOL_ICONS: Partial<Record<ToolId, LucideIcon>> = {
   'visual-calibration': MonitorPlay,
@@ -34,10 +38,36 @@ interface ProjectHomeProps {
   project: BrahmastraProject;
   tools: ToolMeta[];
   onToolSelect: (id: ToolId) => void;
+  onProjectUpdate?: (updated: BrahmastraProject) => void;
 }
 
-export function ProjectHome({ project, tools, onToolSelect }: ProjectHomeProps) {
+export function ProjectHome({ project, tools, onToolSelect, onProjectUpdate }: ProjectHomeProps) {
   const activeScopeTools = tools.filter((t) => t.id !== 'home');
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'done' | 'error'>('idle');
+  const securityItems = getSecurityItems(project);
+  const canSync = !!(project.boqProjectId && project.boqSyncOrigin);
+
+  // Listen for postMessage from BOQ Builder popup
+  useBOQMessageListener((boqProject) => {
+    setSyncStatus('done');
+    const updated: BrahmastraProject = {
+      ...project,
+      boqData: boqProject,
+      boqLastSyncAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    saveProject(updated);
+    onProjectUpdate?.(updated);
+    setTimeout(() => setSyncStatus('idle'), 3000);
+  }, canSync);
+
+  function handleSyncRequest() {
+    if (!project.boqProjectId || !project.boqSyncOrigin) return;
+    setSyncStatus('syncing');
+    requestBOQSync(project.boqProjectId, project.boqSyncOrigin);
+    // Timeout fallback
+    setTimeout(() => setSyncStatus((s) => s === 'syncing' ? 'error' : s), 15000);
+  }
 
   function formatDate(iso: string) {
     return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -117,6 +147,35 @@ export function ProjectHome({ project, tools, onToolSelect }: ProjectHomeProps) 
             No BOQ linked — tools are available in default mode.
           </div>
         )}
+
+        {/* Sync row */}
+        {(canSync || project.boqLastSyncAt) && (
+          <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            {canSync && (
+              <button
+                onClick={handleSyncRequest}
+                disabled={syncStatus === 'syncing'}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '6px',
+                  padding: '6px 14px', borderRadius: '7px',
+                  background: syncStatus === 'done' ? 'rgba(34,197,94,0.1)' : 'rgba(99,102,241,0.1)',
+                  border: `1px solid ${syncStatus === 'done' ? 'rgba(34,197,94,0.25)' : 'rgba(99,102,241,0.2)'}`,
+                  color: syncStatus === 'done' ? '#22c55e' : '#818cf8',
+                  fontSize: '12px', fontWeight: 600, cursor: syncStatus === 'syncing' ? 'default' : 'pointer',
+                  opacity: syncStatus === 'syncing' ? 0.6 : 1,
+                }}
+              >
+                <RefreshCw size={12} className={syncStatus === 'syncing' ? 'animate-spin' : ''} />
+                {syncStatus === 'syncing' ? 'Syncing...' : syncStatus === 'done' ? 'Synced ✓' : syncStatus === 'error' ? 'Sync failed' : 'Sync from BOQ'}
+              </button>
+            )}
+            {project.boqLastSyncAt && (
+              <span style={{ fontSize: '11px', color: '#3a3d52' }}>
+                Last synced: {new Date(project.boqLastSyncAt).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Tools Section */}
@@ -169,6 +228,28 @@ export function ProjectHome({ project, tools, onToolSelect }: ProjectHomeProps) 
           })}
         </div>
       </div>
+
+      {securityItems.length > 0 && (
+        <div style={{ marginTop: '28px' }}>
+          <div style={{ marginBottom: '14px' }}>
+            <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#fff', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Shield size={15} color="#f59e0b" /> Security Systems
+            </h3>
+            <p style={{ fontSize: '12px', color: '#565a72' }}>Installed security items from BOQ. Dedicated commissioning tools coming soon.</p>
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {securityItems.map((item) => (
+              <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', fontSize: '13px', color: '#fbbf24', fontWeight: 500 }}>
+                <Camera size={13} color="#f59e0b" />
+                {item}
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: '10px', padding: '10px 14px', borderRadius: '8px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', fontSize: '12px', color: '#565a72' }}>
+            Security commissioning checklist and camera layout tool are in the roadmap.
+          </div>
+        </div>
+      )}
     </div>
   );
 }

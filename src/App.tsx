@@ -78,6 +78,10 @@ function App() {
             project={activeProject!}
             tools={projectTools}
             onToolSelect={setActiveToolId}
+            onProjectUpdate={(updated) => {
+              setActiveProject(updated);
+              refreshProjects();
+            }}
           />
         );
       case 'visual-calibration':
