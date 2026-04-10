@@ -1,6 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Layout } from './components/layout/Layout';
-import { Home } from './pages/Home';
+import { ProjectsPage } from './pages/ProjectsPage';
+import { ProjectHome } from './pages/ProjectHome';
 import { VisualCalibrationTool } from './components/tools/visual-calibration/VisualCalibrationTool';
 import { ThermalLoadTool } from './components/tools/thermal-load/ThermalLoadTool';
 import { AirflowTool } from './components/tools/airflow/AirflowTool';
@@ -8,20 +9,77 @@ import { SpeakerCalibrationTool } from './components/tools/speaker-calibration/S
 import { NetworkAuditTool } from './components/tools/network-audit/NetworkAuditTool';
 import { FutureTool } from './components/tools/future/FutureTool';
 import { TOOLS } from './lib/toolRegistry';
-import type { ToolId } from './types';
+import { loadProjects } from './lib/projectStorage';
+import { getToolsForProject, getSortedTools } from './lib/scopeToolMap';
+import type { ToolId, BrahmastraProject, ToolMeta } from './types';
+
+type AppView = 'projects' | 'project-tool';
 
 function App() {
+  const [view, setView] = useState<AppView>('projects');
+  const [projects, setProjects] = useState<BrahmastraProject[]>(() => loadProjects());
+  const [activeProject, setActiveProject] = useState<BrahmastraProject | null>(null);
   const [activeToolId, setActiveToolId] = useState<ToolId>('home');
 
-  const activeTool = TOOLS.find((t) => t.id === activeToolId)!;
+  // Refresh projects from storage
+  const refreshProjects = useCallback(() => {
+    setProjects(loadProjects());
+  }, []);
+
+  // Sync active project when projects list changes (e.g. after save)
+  useEffect(() => {
+    if (activeProject) {
+      const updated = projects.find((p) => p.id === activeProject.id);
+      if (updated) setActiveProject(updated);
+    }
+  }, [projects]);
+
+  function handleOpenProject(project: BrahmastraProject) {
+    setActiveProject(project);
+    setActiveToolId('home');
+    setView('project-tool');
+  }
+
+  function handleBackToProjects() {
+    setView('projects');
+    setActiveProject(null);
+    setActiveToolId('home');
+  }
 
   const handlePrint = useCallback(() => { window.print(); }, []);
   const handleExport = useCallback(() => { window.print(); }, []);
 
+  // Projects screen
+  if (view === 'projects') {
+    return (
+      <ProjectsPage
+        projects={projects}
+        onOpenProject={handleOpenProject}
+        onProjectsChange={refreshProjects}
+      />
+    );
+  }
+
+  if (!activeProject) return null;
+
+  // Compute which tools to show for this project
+  const projectToolIds = getSortedTools(getToolsForProject(activeProject));
+  const projectTools: ToolMeta[] = projectToolIds
+    .map((id) => TOOLS.find((t) => t.id === id))
+    .filter(Boolean) as ToolMeta[];
+
+  const activeTool = projectTools.find((t) => t.id === activeToolId) ?? projectTools[0];
+
   function renderTool() {
     switch (activeToolId) {
       case 'home':
-        return <Home tools={TOOLS.filter((t) => t.id !== 'home')} onToolSelect={setActiveToolId} />;
+        return (
+          <ProjectHome
+            project={activeProject!}
+            tools={projectTools}
+            onToolSelect={setActiveToolId}
+          />
+        );
       case 'visual-calibration':
         return <VisualCalibrationTool />;
       case 'thermal-load':
@@ -41,9 +99,11 @@ function App() {
     <Layout
       activeToolId={activeToolId}
       onToolSelect={setActiveToolId}
-      tools={TOOLS}
+      tools={projectTools}
       onPrint={handlePrint}
       onExport={handleExport}
+      project={activeProject}
+      onBack={handleBackToProjects}
     >
       {renderTool()}
     </Layout>

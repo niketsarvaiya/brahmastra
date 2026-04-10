@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
-import type { ToolId, ToolMeta } from '../../types';
+import type { ToolId, ToolMeta, BrahmastraProject } from '../../types';
 
 interface LayoutProps {
   children: ReactNode;
@@ -11,6 +11,8 @@ interface LayoutProps {
   tools: ToolMeta[];
   onPrint?: () => void;
   onExport?: () => void;
+  project?: BrahmastraProject;
+  onBack?: () => void;
 }
 
 export function Layout({
@@ -20,6 +22,8 @@ export function Layout({
   tools,
   onPrint,
   onExport,
+  project,
+  onBack,
 }: LayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -36,7 +40,7 @@ export function Layout({
     if (isMobile) setMobileOpen(false);
   };
 
-  const activeTool = tools.find((t) => t.id === activeToolId)!;
+  const activeTool = tools.find((t) => t.id === activeToolId) ?? tools[0];
   const contentMarginLeft = isMobile ? 0 : sidebarCollapsed ? '60px' : '230px';
 
   return (
@@ -50,6 +54,8 @@ export function Layout({
         mobileOpen={mobileOpen}
         onMobileClose={() => setMobileOpen(false)}
         isMobile={isMobile}
+        project={project}
+        onBack={onBack}
       />
 
       <div
@@ -63,6 +69,7 @@ export function Layout({
           showActions={activeToolId !== 'home'}
           onMobileMenuOpen={() => setMobileOpen(true)}
           isMobile={isMobile}
+          project={project}
         />
         <main className="flex-1 overflow-y-auto scrollbar-thin">
           {children}

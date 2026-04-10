@@ -53,3 +53,48 @@ export interface ToolMeta {
   category: 'active' | 'future';
   tags: string[];
 }
+
+// ─── Project Types ────────────────────────────────────────────────
+
+export interface BrahmastraProject {
+  id: string
+  name: string
+  client: string
+  location: string
+  projectCode: string
+  createdAt: string
+  updatedAt: string
+  boqData?: BOQProject
+  activeToolIds: ToolId[]  // manually toggled tools (overrides or supplements BOQ detection)
+}
+
+export interface BOQProject {
+  boqVersion?: string
+  id: string
+  name: string
+  client: string
+  location: string
+  projectCode: string
+  rooms: BOQRoom[]
+  lineItems: BOQLineItem[]
+}
+
+export interface BOQRoom {
+  id: string
+  name: string
+  order: number
+}
+
+export interface BOQLineItem {
+  id: string
+  scope: string
+  product: string
+  brand: string
+  modelNumber: string
+  specs: string
+  notes: string
+  canonicalKey?: string
+  included: boolean
+  isCustom?: boolean
+  roomAllocations: Array<{ roomId: string; qty: number }>
+}

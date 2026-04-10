@@ -1,4 +1,4 @@
-import type { ToolMeta } from '../../types';
+import type { ToolMeta, BrahmastraProject } from '../../types';
 import { Printer, Download, Info, Menu } from 'lucide-react';
 
 interface TopBarProps {
@@ -8,6 +8,7 @@ interface TopBarProps {
   showActions?: boolean;
   onMobileMenuOpen?: () => void;
   isMobile?: boolean;
+  project?: BrahmastraProject;
 }
 
 export function TopBar({
@@ -17,6 +18,7 @@ export function TopBar({
   showActions = true,
   onMobileMenuOpen,
   isMobile = false,
+  project,
 }: TopBarProps) {
   return (
     <header
@@ -52,15 +54,23 @@ export function TopBar({
       <div className="flex items-center gap-2 min-w-0 flex-1">
         {!isMobile && (
           <>
-            <span className="text-[12px] text-[#3a3d52] font-medium uppercase tracking-widest">
+            <span className="text-[12px] text-[#3a3d52] font-medium uppercase tracking-widest shrink-0">
               Brahmastra
             </span>
+            {project && (
+              <>
+                <span className="text-[#2a2d3a]">/</span>
+                <span className="text-[12px] text-[#565a72] font-medium truncate max-w-[160px]" title={project.name}>
+                  {project.name}
+                </span>
+              </>
+            )}
             <span className="text-[#2a2d3a]">/</span>
           </>
         )}
         <h1
           className="font-semibold text-white truncate"
-          style={{ fontSize: isMobile ? '15px' : '15px' }}
+          style={{ fontSize: '15px' }}
         >
           {tool.name}
         </h1>
