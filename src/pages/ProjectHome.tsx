@@ -45,7 +45,13 @@ export function ProjectHome({ project, tools, onToolSelect, onProjectUpdate }: P
   const activeScopeTools = tools.filter((t) => t.id !== 'home');
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'done' | 'error'>('idle');
   const securityItems = getSecurityItems(project);
-  const canSync = !!(project.boqProjectId && project.boqSyncOrigin);
+
+  // canSync: true whenever there is any BOQ data linked (with or without explicit boqProjectId)
+  const canSync = !!(project.boqData || project.boqProjectId);
+  // Resolve effective BOQ project ID — prefer explicit field, fall back to boqData.id
+  const effectiveBOQId = project.boqProjectId ?? project.boqData?.id ?? '';
+  // Resolve effective sync origin — prefer explicit field, fall back to local BOQ Builder
+  const effectiveSyncOrigin = project.boqSyncOrigin ?? 'http://localhost:5175';
 
   // Listen for postMessage from BOQ Builder popup
   useBOQMessageListener((boqProject) => {
@@ -53,6 +59,8 @@ export function ProjectHome({ project, tools, onToolSelect, onProjectUpdate }: P
     const updated: BrahmastraProject = {
       ...project,
       boqData: boqProject,
+      boqProjectId: boqProject.id,
+      boqSyncOrigin: effectiveSyncOrigin,
       boqLastSyncAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -62,9 +70,8 @@ export function ProjectHome({ project, tools, onToolSelect, onProjectUpdate }: P
   }, canSync);
 
   function handleSyncRequest() {
-    if (!project.boqProjectId || !project.boqSyncOrigin) return;
     setSyncStatus('syncing');
-    requestBOQSync(project.boqProjectId, project.boqSyncOrigin);
+    requestBOQSync(effectiveBOQId, effectiveSyncOrigin);
     // Timeout fallback
     setTimeout(() => setSyncStatus((s) => s === 'syncing' ? 'error' : s), 15000);
   }
@@ -148,8 +155,8 @@ export function ProjectHome({ project, tools, onToolSelect, onProjectUpdate }: P
           </div>
         )}
 
-        {/* Sync row */}
-        {(canSync || project.boqLastSyncAt) && (
+        {/* Sync row — show whenever BOQ is linked */}
+        {canSync && (
           <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '10px' }}>
             {canSync && (
               <button
