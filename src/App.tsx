@@ -22,14 +22,14 @@ function App() {
   const [activeProject, setActiveProject] = useState<BrahmastraProject | null>(null);
   const [activeToolId, setActiveToolId] = useState<ToolId>('home');
 
-  // Refresh projects from storage
   const refreshProjects = useCallback(() => {
     setProjects(loadProjects());
   }, []);
 
+  // Auto-sync: BOQ Builder is source of truth — new/updated projects appear automatically
   const autoSync = useBOQAutoSync(refreshProjects);
 
-  // Sync active project when projects list changes (e.g. after save)
+  // Keep active project fresh when BOQ data updates in background
   useEffect(() => {
     if (activeProject) {
       const updated = projects.find((p) => p.id === activeProject.id);
@@ -52,46 +52,22 @@ function App() {
   const handlePrint = useCallback(() => { window.print(); }, []);
   const handleExport = useCallback(() => { window.print(); }, []);
 
-  // Projects screen
+  // ── Projects screen ─────────────────────────────────────────────
   if (view === 'projects') {
     return (
-      <>
-        {autoSync.newCount > 0 && (
-          <div style={{
-            position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
-            background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-            padding: '10px 20px',
-            display: 'flex', alignItems: 'center', gap: '12px',
-          }}>
-            <span style={{ fontSize: '13px', fontWeight: 600, color: '#fff', flex: 1 }}>
-              🔄 {autoSync.newCount} new project{autoSync.newCount !== 1 ? 's' : ''} from BOQ Builder
-            </span>
-            <button
-              onClick={autoSync.importAll}
-              style={{ padding: '5px 14px', borderRadius: '6px', background: '#fff', color: '#6366f1', fontSize: '12px', fontWeight: 700, cursor: 'pointer', border: 'none' }}
-            >
-              Import All
-            </button>
-            <button
-              onClick={autoSync.dismiss}
-              style={{ color: 'rgba(255,255,255,0.7)', fontSize: '18px', cursor: 'pointer', background: 'transparent', border: 'none', lineHeight: 1 }}
-            >
-              ×
-            </button>
-          </div>
-        )}
-        <ProjectsPage
-          projects={projects}
-          onOpenProject={handleOpenProject}
-          onProjectsChange={refreshProjects}
-        />
-      </>
+      <ProjectsPage
+        projects={projects}
+        onOpenProject={handleOpenProject}
+        onProjectsChange={refreshProjects}
+        syncConnected={autoSync.connected}
+        syncLastAt={autoSync.lastSyncAt}
+      />
     );
   }
 
   if (!activeProject) return null;
 
-  // Compute which tools to show for this project
+  // ── Project tool screen ──────────────────────────────────────────
   const projectToolIds = getSortedTools(getToolsForProject(activeProject));
   const projectTools: ToolMeta[] = projectToolIds
     .map((id) => TOOLS.find((t) => t.id === id))
