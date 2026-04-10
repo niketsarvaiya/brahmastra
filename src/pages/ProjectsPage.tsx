@@ -7,7 +7,7 @@ import { deleteProject } from '../lib/projectStorage';
 const BOQ_BUILDER_URL =
   typeof window !== 'undefined' && window.location.hostname === 'localhost'
     ? 'http://localhost:5175'
-    : 'https://boq-builder.vercel.app';
+    : 'https://boq-builder-cyan.vercel.app';
 
 interface ProjectsPageProps {
   projects: BrahmastraProject[];

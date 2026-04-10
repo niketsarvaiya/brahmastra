@@ -16,7 +16,7 @@ import { useEffect } from 'react';
 // ─── Known BOQ Builder origins ──────────────────────────────────
 export const ALLOWED_BOQ_ORIGINS: string[] = [
   'http://localhost:5175',
-  'https://boq-builder.vercel.app',
+  'https://boq-builder-cyan.vercel.app',
   // Production URL — add when known
 ];
 
