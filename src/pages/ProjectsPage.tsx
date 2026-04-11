@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Folder, Trash2, ChevronRight, Activity, Calendar, MapPin, Hash, ExternalLink, RefreshCw, Loader, RotateCcw } from 'lucide-react';
+import { Folder, Trash2, ChevronRight, Activity, Calendar, MapPin, Hash, ExternalLink, RefreshCw, RotateCcw } from 'lucide-react';
 import type { BrahmastraProject } from '../types';
 import { deleteProject } from '../lib/projectStorage';
 
@@ -65,27 +65,20 @@ export function ProjectsPage({
           </div>
           <div style={{ flex: 1 }} />
 
-          {/* Sync status pill */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 10px', borderRadius: '20px', background: syncConnected ? 'rgba(34,197,94,0.08)' : 'rgba(255,255,255,0.04)', border: `1px solid ${syncConnected ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.06)'}` }}>
-            {syncConnected
-              ? <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e', flexShrink: 0 }} />
-              : <Loader size={10} color="#565a72" style={{ animation: 'spin 1.2s linear infinite' }} />
-            }
-            <span style={{ fontSize: '11px', color: syncConnected ? '#22c55e' : '#565a72', fontWeight: 500 }}>
-              {syncConnected ? 'BOQ Live' : 'Connecting to BOQ…'}
-            </span>
-          </div>
-
-          {/* Manual sync refresh */}
+          {/* Sync status + refresh button */}
           {onSyncRefresh && (
             <button
               onClick={onSyncRefresh}
-              title="Re-sync from Beyond BOQ"
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '34px', height: '34px', borderRadius: '8px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#565a72', cursor: 'pointer' }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = '#565a72'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
+              title="Sync all projects from Beyond BOQ"
+              style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '6px 12px', borderRadius: '8px', background: syncConnected ? 'rgba(34,197,94,0.08)' : 'rgba(255,255,255,0.04)', border: `1px solid ${syncConnected ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.08)'}`, color: syncConnected ? '#22c55e' : '#8b8fa8', cursor: 'pointer', fontSize: '11px', fontWeight: 600 }}
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
             >
-              <RotateCcw size={14} />
+              {syncConnected
+                ? <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e', flexShrink: 0 }} />
+                : <RotateCcw size={11} />
+              }
+              {syncConnected ? `Synced · ${syncLastAt ? formatTime(syncLastAt) : ''}` : 'Sync from Beyond BOQ'}
             </button>
           )}
 

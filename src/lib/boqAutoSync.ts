@@ -1,14 +1,15 @@
 /**
- * BOQ Auto-Sync — iframe bridge subscriber
- * ────────────────────────────────────────
- * Embeds BOQ Builder's sync-bridge.html as a hidden iframe.
- * On startup: requests all current BOQ projects.
- * On change: receives live pushes from BOQ Builder.
+ * BOQ Auto-Sync — popup-based (replaces broken iframe approach)
+ * ─────────────────────────────────────────────────────────────
+ * Uses window.open() to request all projects from Beyond BOQ.
+ * Popup runs in first-party context → reads localStorage correctly.
+ * Data is postMessage'd back to this window, popup closes.
  *
- * BOQ Builder is the SOURCE OF TRUTH:
- *   - Every BOQ project is automatically imported into Brahmastra
- *   - Updates to existing projects sync silently in the background
- *   - Brahmastra never creates projects from scratch
+ * Why popup instead of iframe:
+ * Chrome 115+ partitions localStorage for cross-site iframes.
+ * boq-builder-cyan.vercel.app embedded in beyond-finesse-tools.vercel.app
+ * reads from a partitioned (empty) bucket, not the real projects.
+ * window.open() popups are NOT subject to this restriction.
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
@@ -21,11 +22,6 @@ const BOQ_BUILDER_ORIGINS: string[] = [
   'http://localhost:5175',
   'https://boq-builder-cyan.vercel.app',
 ];
-
-export const BOQ_BRIDGE_URL =
-  typeof window !== 'undefined' && window.location.hostname === 'localhost'
-    ? 'http://localhost:5175/sync-bridge.html'
-    : 'https://boq-builder-cyan.vercel.app/sync-bridge.html';
 
 export const BOQ_BUILDER_URL =
   typeof window !== 'undefined' && window.location.hostname === 'localhost'
@@ -71,7 +67,6 @@ function syncBOQProjects(boqProjects: BOQProject[]): number {
     const linked = existingByBOQId.get(boqProject.id);
 
     if (linked) {
-      // Update existing project's BOQ data silently
       const updatedProject: BrahmastraProject = {
         ...linked,
         boqData: boqProject as BrahmastraProject['boqData'],
@@ -83,7 +78,6 @@ function syncBOQProjects(boqProjects: BOQProject[]): number {
       saveProject(updatedProject);
       changes++;
     } else {
-      // Auto-import new project — BOQ Builder is the source of truth
       const project = parseBOQForProject(JSON.stringify(boqProject));
       if (project) {
         saveProject(project);
@@ -98,67 +92,46 @@ function syncBOQProjects(boqProjects: BOQProject[]): number {
 export function useBOQAutoSync(onRefresh: () => void): AutoSyncState {
   const [connected, setConnected] = useState(false);
   const [lastSyncAt, setLastSyncAt] = useState<string | null>(null);
-  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const popupRef = useRef<Window | null>(null);
 
   const processProjects = useCallback((projects: BOQProject[]) => {
     const changes = syncBOQProjects(projects);
     if (changes > 0) onRefresh();
+    setConnected(true);
     setLastSyncAt(new Date().toISOString());
   }, [onRefresh]);
 
-  const sendRequest = useCallback((iframe: HTMLIFrameElement) => {
-    BOQ_BUILDER_ORIGINS.forEach((origin) => {
-      try { iframe.contentWindow?.postMessage({ type: 'boq-bridge-request' }, origin); } catch { /* ignore */ }
-    });
-  }, []);
-
-  const refresh = useCallback(() => {
-    if (iframeRef.current) sendRequest(iframeRef.current);
-  }, [sendRequest]);
-
+  // Listen for postMessage from the popup
   useEffect(() => {
-    // Create hidden iframe pointed at BOQ Builder's sync bridge
-    const iframe = document.createElement('iframe');
-    iframe.src = BOQ_BRIDGE_URL;
-    iframe.style.cssText = 'display:none;width:0;height:0;border:none;position:absolute;';
-    iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
-
     function handleMessage(event: MessageEvent) {
       if (!BOQ_BUILDER_ORIGINS.includes(event.origin)) return;
-
       const data = event.data as { type: string; projects?: BOQProject[] } | null;
       if (!data) return;
 
-      if (data.type === 'boq-bridge-ready') {
-        setConnected(true);
-        // Bridge just signalled ready — request projects immediately
-        iframe.contentWindow?.postMessage({ type: 'boq-bridge-request' }, event.origin);
+      // Popup sent all projects
+      if (data.type === 'boq-sync-all' && data.projects) {
+        processProjects(data.projects);
+        popupRef.current = null;
       }
 
-      if (data.type === 'boq-bridge-response' || data.type === 'boq-projects-changed') {
-        setConnected(true);
-        processProjects((data.projects ?? []) as BOQProject[]);
+      // Legacy single-project sync (from manual per-project sync)
+      if (data.type === 'boq-sync' && data.projects) {
+        processProjects(data.projects);
       }
     }
 
     window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [processProjects]);
 
-    // Fire request as soon as the iframe DOM is loaded (most reliable trigger)
-    iframe.addEventListener('load', () => sendRequest(iframe));
-
-    document.body.appendChild(iframe);
-    iframeRef.current = iframe;
-
-    // Belt-and-suspenders: retry after 2s in case load event fired before listener
-    const timer = setTimeout(() => sendRequest(iframe), 2000);
-
-    return () => {
-      window.removeEventListener('message', handleMessage);
-      clearTimeout(timer);
-      iframe.remove();
-      iframeRef.current = null;
-    };
-  }, [processProjects, sendRequest]);
+  // Open popup to request all projects from Beyond BOQ
+  const refresh = useCallback(() => {
+    const callbackOrigin = encodeURIComponent(window.location.origin);
+    const url = `${BOQ_BUILDER_URL}?sync-request=all&callback=${callbackOrigin}`;
+    // Close any existing popup first
+    if (popupRef.current && !popupRef.current.closed) popupRef.current.close();
+    popupRef.current = window.open(url, 'boq-sync-popup', 'width=480,height=560,noopener=no');
+  }, []);
 
   return { connected, lastSyncAt, refresh };
 }
