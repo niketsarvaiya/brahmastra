@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useBOQAutoSync } from './lib/boqAutoSync';
+import { ensureDemoProject } from './lib/demoProject';
 import { Layout } from './components/layout/Layout';
 import { ProjectsPage } from './pages/ProjectsPage';
 import { ProjectHome } from './pages/ProjectHome';
@@ -18,7 +19,10 @@ type AppView = 'projects' | 'project-tool';
 
 function App() {
   const [view, setView] = useState<AppView>('projects');
-  const [projects, setProjects] = useState<BrahmastraProject[]>(() => loadProjects());
+  const [projects, setProjects] = useState<BrahmastraProject[]>(() => {
+    ensureDemoProject();
+    return loadProjects();
+  });
   const [activeProject, setActiveProject] = useState<BrahmastraProject | null>(null);
   const [activeToolId, setActiveToolId] = useState<ToolId>('home');
 
@@ -27,7 +31,7 @@ function App() {
   }, []);
 
   // Auto-sync: BOQ Builder is source of truth — new/updated projects appear automatically
-  const autoSync = useBOQAutoSync(refreshProjects);
+  const { connected: syncConnected, lastSyncAt, refresh: syncRefresh } = useBOQAutoSync(refreshProjects);
 
   // Keep active project fresh when BOQ data updates in background
   useEffect(() => {
@@ -59,8 +63,9 @@ function App() {
         projects={projects}
         onOpenProject={handleOpenProject}
         onProjectsChange={refreshProjects}
-        syncConnected={autoSync.connected}
-        syncLastAt={autoSync.lastSyncAt}
+        syncConnected={syncConnected}
+        syncLastAt={lastSyncAt}
+        onSyncRefresh={syncRefresh}
       />
     );
   }

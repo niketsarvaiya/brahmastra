@@ -11,7 +11,7 @@
  *   - Brahmastra never creates projects from scratch
  */
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import type { BrahmastraProject } from '../types';
 import { loadProjects, saveProject } from './projectStorage';
 import { parseBOQForProject } from './boqProjectImport';
@@ -47,6 +47,7 @@ interface BOQProject {
 export interface AutoSyncState {
   connected: boolean;
   lastSyncAt: string | null;
+  refresh: () => void;
 }
 
 /**
@@ -97,6 +98,7 @@ function syncBOQProjects(boqProjects: BOQProject[]): number {
 export function useBOQAutoSync(onRefresh: () => void): AutoSyncState {
   const [connected, setConnected] = useState(false);
   const [lastSyncAt, setLastSyncAt] = useState<string | null>(null);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
 
   const processProjects = useCallback((projects: BOQProject[]) => {
     const changes = syncBOQProjects(projects);
@@ -104,13 +106,22 @@ export function useBOQAutoSync(onRefresh: () => void): AutoSyncState {
     setLastSyncAt(new Date().toISOString());
   }, [onRefresh]);
 
+  const sendRequest = useCallback((iframe: HTMLIFrameElement) => {
+    BOQ_BUILDER_ORIGINS.forEach((origin) => {
+      try { iframe.contentWindow?.postMessage({ type: 'boq-bridge-request' }, origin); } catch { /* ignore */ }
+    });
+  }, []);
+
+  const refresh = useCallback(() => {
+    if (iframeRef.current) sendRequest(iframeRef.current);
+  }, [sendRequest]);
+
   useEffect(() => {
     // Create hidden iframe pointed at BOQ Builder's sync bridge
     const iframe = document.createElement('iframe');
     iframe.src = BOQ_BRIDGE_URL;
     iframe.style.cssText = 'display:none;width:0;height:0;border:none;position:absolute;';
     iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
-    document.body.appendChild(iframe);
 
     function handleMessage(event: MessageEvent) {
       if (!BOQ_BUILDER_ORIGINS.includes(event.origin)) return;
@@ -120,7 +131,7 @@ export function useBOQAutoSync(onRefresh: () => void): AutoSyncState {
 
       if (data.type === 'boq-bridge-ready') {
         setConnected(true);
-        // Request full project list now that bridge is ready
+        // Bridge just signalled ready — request projects immediately
         iframe.contentWindow?.postMessage({ type: 'boq-bridge-request' }, event.origin);
       }
 
@@ -132,19 +143,22 @@ export function useBOQAutoSync(onRefresh: () => void): AutoSyncState {
 
     window.addEventListener('message', handleMessage);
 
-    // Fallback request after 1.5s (bridge may have loaded before listener was ready)
-    const timer = setTimeout(() => {
-      BOQ_BUILDER_ORIGINS.forEach((origin) => {
-        try { iframe.contentWindow?.postMessage({ type: 'boq-bridge-request' }, origin); } catch { /* ignore */ }
-      });
-    }, 1500);
+    // Fire request as soon as the iframe DOM is loaded (most reliable trigger)
+    iframe.addEventListener('load', () => sendRequest(iframe));
+
+    document.body.appendChild(iframe);
+    iframeRef.current = iframe;
+
+    // Belt-and-suspenders: retry after 2s in case load event fired before listener
+    const timer = setTimeout(() => sendRequest(iframe), 2000);
 
     return () => {
       window.removeEventListener('message', handleMessage);
       clearTimeout(timer);
       iframe.remove();
+      iframeRef.current = null;
     };
-  }, [processProjects]);
+  }, [processProjects, sendRequest]);
 
-  return { connected, lastSyncAt };
+  return { connected, lastSyncAt, refresh };
 }

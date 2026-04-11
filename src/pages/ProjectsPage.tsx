@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Folder, Trash2, ChevronRight, Activity, Calendar, MapPin, Hash, ExternalLink, RefreshCw, Loader } from 'lucide-react';
+import { Folder, Trash2, ChevronRight, Activity, Calendar, MapPin, Hash, ExternalLink, RefreshCw, Loader, RotateCcw } from 'lucide-react';
 import type { BrahmastraProject } from '../types';
 import { deleteProject } from '../lib/projectStorage';
 
@@ -15,6 +15,7 @@ interface ProjectsPageProps {
   onProjectsChange: () => void;
   syncConnected?: boolean;
   syncLastAt?: string | null;
+  onSyncRefresh?: () => void;
 }
 
 export function ProjectsPage({
@@ -23,6 +24,7 @@ export function ProjectsPage({
   onProjectsChange,
   syncConnected = false,
   syncLastAt,
+  onSyncRefresh,
 }: ProjectsPageProps) {
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
@@ -70,9 +72,22 @@ export function ProjectsPage({
               : <Loader size={10} color="#565a72" style={{ animation: 'spin 1.2s linear infinite' }} />
             }
             <span style={{ fontSize: '11px', color: syncConnected ? '#22c55e' : '#565a72', fontWeight: 500 }}>
-              {syncConnected ? 'Live' : 'Connecting…'}
+              {syncConnected ? 'BOQ Live' : 'Connecting to BOQ…'}
             </span>
           </div>
+
+          {/* Manual sync refresh */}
+          {onSyncRefresh && (
+            <button
+              onClick={onSyncRefresh}
+              title="Re-sync from BOQ Builder"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '34px', height: '34px', borderRadius: '8px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#565a72', cursor: 'pointer' }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = '#565a72'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
+            >
+              <RotateCcw size={14} />
+            </button>
+          )}
 
           {/* Open BOQ Builder */}
           <button
