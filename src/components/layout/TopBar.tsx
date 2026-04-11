@@ -1,5 +1,6 @@
 import type { ToolMeta, BrahmastraProject } from '../../types';
 import { Printer, Download, Info, Menu } from 'lucide-react';
+import { ThemeToggle } from '../ui/ThemeToggle';
 
 interface TopBarProps {
   tool: ToolMeta;
@@ -26,7 +27,7 @@ export function TopBar({
       style={{
         height: '60px',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
-        background: '#0a0b0f',
+        background: 'var(--color-surface-0)',
       }}
     >
       {/* Mobile hamburger */}
@@ -143,6 +144,11 @@ export function TopBar({
           {!isMobile && <span>In development</span>}
         </div>
       )}
+
+      {/* Theme toggle — always visible */}
+      <div className="flex items-center shrink-0" style={{ marginLeft: '4px' }}>
+        <ThemeToggle />
+      </div>
     </header>
   );
 }

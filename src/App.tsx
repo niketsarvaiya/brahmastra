@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useBOQAutoSync } from './lib/boqAutoSync';
 import { ensureDemoProject } from './lib/demoProject';
+import { ThemeProvider } from './lib/theme';
 import { Layout } from './components/layout/Layout';
 import { ProjectsPage } from './pages/ProjectsPage';
 import { ProjectHome } from './pages/ProjectHome';
@@ -17,7 +18,7 @@ import type { ToolId, BrahmastraProject, ToolMeta } from './types';
 
 type AppView = 'projects' | 'project-tool';
 
-function App() {
+function AppContent() {
   const [view, setView] = useState<AppView>('projects');
   const [projects, setProjects] = useState<BrahmastraProject[]>(() => {
     ensureDemoProject();
@@ -121,6 +122,14 @@ function App() {
     >
       {renderTool()}
     </Layout>
+  );
+}
+
+function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   );
 }
 

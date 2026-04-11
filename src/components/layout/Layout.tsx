@@ -44,7 +44,7 @@ export function Layout({
   const contentMarginLeft = isMobile ? 0 : sidebarCollapsed ? '60px' : '230px';
 
   return (
-    <div className="flex h-svh overflow-hidden" style={{ background: '#0a0b0f' }}>
+    <div className="flex h-svh overflow-hidden" style={{ background: 'var(--color-surface-0)' }}>
       <Sidebar
         activeToolId={activeToolId}
         onToolSelect={handleToolSelect}

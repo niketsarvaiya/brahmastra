@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Folder, Trash2, ChevronRight, Activity, Calendar, MapPin, Hash, ExternalLink, RefreshCw, RotateCcw } from 'lucide-react';
 import type { BrahmastraProject } from '../types';
 import { deleteProject } from '../lib/projectStorage';
+import { ThemeToggle } from '../components/ui/ThemeToggle';
 
 // Resolve Beyond BOQ URL based on current environment
 const BOQ_BUILDER_URL =
@@ -52,9 +53,9 @@ export function ProjectsPage({
   }
 
   return (
-    <div style={{ minHeight: '100svh', background: '#0a0b0f', color: '#fff' }}>
+    <div style={{ minHeight: '100svh', background: 'var(--color-surface-0)', color: 'var(--color-text-primary)' }}>
       {/* Header */}
-      <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: '#0f1117' }}>
+      <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'var(--color-surface-1)' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px', height: '64px', display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <Activity size={16} color="#fff" />
@@ -81,6 +82,9 @@ export function ProjectsPage({
               {syncConnected ? `Synced · ${syncLastAt ? formatTime(syncLastAt) : ''}` : 'Sync from Beyond BOQ'}
             </button>
           )}
+
+          {/* Theme toggle */}
+          <ThemeToggle />
 
           {/* Open Beyond BOQ */}
           <button
