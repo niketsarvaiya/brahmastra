@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import type { ToolId } from '../types';
 import { requestBOQSync, useBOQMessageListener } from '../lib/boqSync';
-import { getSecurityItems } from '../lib/scopeToolMap';
+import { getSecurityItems, getToolsForProject } from '../lib/scopeToolMap';
 import { saveProject } from '../lib/projectStorage';
 
 const TOOL_ICONS: Partial<Record<ToolId, LucideIcon>> = {
@@ -58,12 +58,18 @@ export function ProjectHome({ project, tools, onToolSelect, onProjectUpdate }: P
     setSyncStatus('done');
     const updated: BrahmastraProject = {
       ...project,
+      name: boqProject.name,
+      client: boqProject.client ?? project.client,
+      location: boqProject.location ?? project.location,
+      projectCode: boqProject.projectCode ?? project.projectCode,
       boqData: boqProject,
       boqProjectId: boqProject.id,
       boqSyncOrigin: effectiveSyncOrigin,
       boqLastSyncAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
+    // Recompute tools from updated BOQ data so new scopes unlock immediately
+    updated.activeToolIds = getToolsForProject(updated).filter((t) => t !== 'home');
     saveProject(updated);
     onProjectUpdate?.(updated);
     setTimeout(() => setSyncStatus('idle'), 3000);

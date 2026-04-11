@@ -16,6 +16,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import type { BrahmastraProject } from '../types';
 import { loadProjects, saveProject } from './projectStorage';
 import { parseBOQForProject } from './boqProjectImport';
+import { getToolsForProject } from './scopeToolMap';
 
 // ─── Config ──────────────────────────────────────────────────────
 const BOQ_BUILDER_ORIGINS: string[] = [
@@ -69,12 +70,19 @@ function syncBOQProjects(boqProjects: BOQProject[]): number {
     if (linked) {
       const updatedProject: BrahmastraProject = {
         ...linked,
+        name: boqProject.name,           // keep metadata fresh from BOQ
+        client: boqProject.client ?? linked.client,
+        location: boqProject.location ?? linked.location,
+        projectCode: boqProject.projectCode ?? linked.projectCode,
         boqData: boqProject as BrahmastraProject['boqData'],
         boqProjectId: boqProject.id,
         boqSyncOrigin: linked.boqSyncOrigin ?? BOQ_BUILDER_URL,
         boqLastSyncAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
+      // Recompute which tools are enabled based on updated BOQ data
+      const recomputedTools = getToolsForProject(updatedProject).filter((t) => t !== 'home');
+      updatedProject.activeToolIds = recomputedTools;
       saveProject(updatedProject);
       changes++;
     } else {

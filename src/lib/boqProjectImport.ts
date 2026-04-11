@@ -44,6 +44,11 @@ export function parseBOQForProject(json: string): BrahmastraProject | null {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       boqData,
+      boqProjectId: data.id,        // store BOQ project ID so per-project resync works reliably
+      boqSyncOrigin: typeof window !== 'undefined' && window.location.hostname === 'localhost'
+        ? 'http://localhost:5175'
+        : 'https://boq-builder-cyan.vercel.app',
+      boqLastSyncAt: new Date().toISOString(),
       activeToolIds: [],
     };
 
