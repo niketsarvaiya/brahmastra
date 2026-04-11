@@ -3,7 +3,7 @@ import { Folder, Trash2, ChevronRight, Activity, Calendar, MapPin, Hash, Externa
 import type { BrahmastraProject } from '../types';
 import { deleteProject } from '../lib/projectStorage';
 
-// Resolve BOQ Builder URL based on current environment
+// Resolve Beyond BOQ URL based on current environment
 const BOQ_BUILDER_URL =
   typeof window !== 'undefined' && window.location.hostname === 'localhost'
     ? 'http://localhost:5175'
@@ -60,7 +60,7 @@ export function ProjectsPage({
             <Activity size={16} color="#fff" />
           </div>
           <div>
-            <div style={{ fontSize: '14px', fontWeight: 700, letterSpacing: '-0.3px', color: '#fff' }}>Brahmastra</div>
+            <div style={{ fontSize: '14px', fontWeight: 700, letterSpacing: '-0.3px', color: '#fff' }}>Beyond Brahmastra</div>
             <div style={{ fontSize: '10px', color: '#3a3d52', letterSpacing: '0.1em', textTransform: 'uppercase' }}>by Beyond Alliance</div>
           </div>
           <div style={{ flex: 1 }} />
@@ -80,7 +80,7 @@ export function ProjectsPage({
           {onSyncRefresh && (
             <button
               onClick={onSyncRefresh}
-              title="Re-sync from BOQ Builder"
+              title="Re-sync from Beyond BOQ"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '34px', height: '34px', borderRadius: '8px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#565a72', cursor: 'pointer' }}
               onMouseEnter={(e) => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; }}
               onMouseLeave={(e) => { e.currentTarget.style.color = '#565a72'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}
@@ -89,13 +89,13 @@ export function ProjectsPage({
             </button>
           )}
 
-          {/* Open BOQ Builder */}
+          {/* Open Beyond BOQ */}
           <button
             onClick={openBOQBuilder}
             style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '8px 16px', borderRadius: '8px', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff', fontSize: '13px', fontWeight: 600, cursor: 'pointer', border: 'none' }}
           >
             <ExternalLink size={14} />
-            BOQ Builder
+            Beyond BOQ
           </button>
         </div>
       </div>
@@ -106,7 +106,7 @@ export function ProjectsPage({
           <div>
             <h1 style={{ fontSize: '24px', fontWeight: 700, letterSpacing: '-0.5px', color: '#fff', marginBottom: '6px' }}>Projects</h1>
             <p style={{ fontSize: '14px', color: '#565a72' }}>
-              Projects are synced automatically from BOQ Builder.
+              Projects are synced automatically from Beyond BOQ.
               {syncLastAt && (
                 <span style={{ marginLeft: '6px', color: '#3a3d52' }}>Last updated {formatTime(syncLastAt)}</span>
               )}
@@ -122,23 +122,23 @@ export function ProjectsPage({
             </div>
             <div style={{ fontSize: '17px', fontWeight: 700, color: '#fff', marginBottom: '8px' }}>No projects yet</div>
             <div style={{ fontSize: '13px', color: '#565a72', lineHeight: 1.6, marginBottom: '28px' }}>
-              Projects are created in BOQ Builder and automatically appear here.<br />
-              Start by creating your first project in BOQ Builder.
+              Projects are created in Beyond BOQ and automatically appear here.<br />
+              Start by creating your first project in Beyond BOQ.
             </div>
 
-            {/* CTA: open BOQ Builder */}
+            {/* CTA: open Beyond BOQ */}
             <button
               onClick={openBOQBuilder}
               style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', borderRadius: '10px', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff', fontSize: '14px', fontWeight: 600, cursor: 'pointer', border: 'none', marginBottom: '12px' }}
             >
               <ExternalLink size={15} />
-              Create Project in BOQ Builder
+              Create Project in Beyond BOQ
             </button>
 
             {!syncConnected && (
               <div style={{ marginTop: '16px', padding: '12px 16px', borderRadius: '10px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', fontSize: '12px', color: '#3a3d52', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
                 <RefreshCw size={12} color="#3a3d52" />
-                Connecting to BOQ Builder sync…
+                Connecting to Beyond BOQ sync…
               </div>
             )}
           </div>
@@ -220,7 +220,7 @@ export function ProjectsPage({
           <div style={{ marginTop: '32px', padding: '16px 20px', borderRadius: '12px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '14px' }}>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: '13px', fontWeight: 600, color: '#8b8fa8', marginBottom: '2px' }}>Need to add a new project?</div>
-              <div style={{ fontSize: '12px', color: '#3a3d52' }}>Create it in BOQ Builder — it will appear here automatically.</div>
+              <div style={{ fontSize: '12px', color: '#3a3d52' }}>Create it in Beyond BOQ — it will appear here automatically.</div>
             </div>
             <button
               onClick={openBOQBuilder}
@@ -229,7 +229,7 @@ export function ProjectsPage({
               onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(99,102,241,0.1)'; }}
             >
               <ExternalLink size={13} />
-              Open BOQ Builder
+              Open Beyond BOQ
             </button>
           </div>
         )}
@@ -239,8 +239,8 @@ export function ProjectsPage({
       {deleteConfirmId && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ background: '#0f1117', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '14px', padding: '24px', maxWidth: '360px', width: '100%', textAlign: 'center' }}>
-            <div style={{ fontSize: '15px', fontWeight: 700, color: '#fff', marginBottom: '8px' }}>Remove from Brahmastra?</div>
-            <div style={{ fontSize: '13px', color: '#565a72', marginBottom: '20px' }}>This removes the project from Brahmastra. The original BOQ in BOQ Builder is unaffected and will re-sync automatically.</div>
+            <div style={{ fontSize: '15px', fontWeight: 700, color: '#fff', marginBottom: '8px' }}>Remove from Beyond Brahmastra?</div>
+            <div style={{ fontSize: '13px', color: '#565a72', marginBottom: '20px' }}>This removes the project from Brahmastra. The original BOQ in Beyond BOQ is unaffected and will re-sync automatically.</div>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
               <button onClick={() => setDeleteConfirmId(null)} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)', background: 'transparent', color: '#8b8fa8', fontSize: '13px', cursor: 'pointer' }}>Cancel</button>
               <button onClick={() => handleDelete(deleteConfirmId)} style={{ padding: '8px 16px', borderRadius: '8px', background: '#ef4444', color: '#fff', fontSize: '13px', fontWeight: 600, cursor: 'pointer', border: 'none' }}>Remove</button>

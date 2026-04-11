@@ -55,7 +55,7 @@ export function TopBar({
         {!isMobile && (
           <>
             <span className="text-[12px] text-[#3a3d52] font-medium uppercase tracking-widest shrink-0">
-              Brahmastra
+              Beyond Brahmastra
             </span>
             {project && (
               <>
