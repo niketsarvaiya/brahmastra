@@ -10,6 +10,7 @@ import { ThermalLoadTool } from './components/tools/thermal-load/ThermalLoadTool
 import { AirflowTool } from './components/tools/airflow/AirflowTool';
 import { SpeakerCalibrationTool } from './components/tools/speaker-calibration/SpeakerCalibrationTool';
 import { NetworkAuditTool } from './components/tools/network-audit/NetworkAuditTool';
+import { SceneIntelligenceTool } from './components/tools/scene-intelligence/SceneIntelligenceTool';
 import { FutureTool } from './components/tools/future/FutureTool';
 import { TOOLS } from './lib/toolRegistry';
 import { loadProjects } from './lib/projectStorage';
@@ -105,6 +106,8 @@ function AppContent() {
         return <SpeakerCalibrationTool />;
       case 'network-quality':
         return <NetworkAuditTool />;
+      case 'scene-intelligence':
+        return <SceneIntelligenceTool />;
       default:
         return <FutureTool tool={activeTool} />;
     }

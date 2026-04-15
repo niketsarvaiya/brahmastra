@@ -84,6 +84,7 @@ export function getToolsForProject(project: BrahmastraProject): ToolId[] {
       'thermal-load',
       'airflow',
       'speaker-calibration',
+      'scene-intelligence',
       'wifi-signal',
       'system-responsiveness',
       'reliability-score',
@@ -99,6 +100,8 @@ export function getToolsForProject(project: BrahmastraProject): ToolId[] {
   const scopes = new Set(activeItems.map((i) => i.scope));
 
   const tools: ToolId[] = ['home'];
+
+  tools.push('scene-intelligence'); // Always available — AI tool, no BOQ dependency
 
   // visual-calibration — any projection/display items
   if (hasAnyKey(canonicalKeys, VISUAL_KEYS)) {
@@ -164,6 +167,7 @@ export const TOOL_ORDER: ToolId[] = [
   'home',
   'visual-calibration',
   'speaker-calibration',
+  'scene-intelligence',
   'network-quality',
   'wifi-signal',
   'thermal-load',

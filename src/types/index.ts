@@ -39,6 +39,7 @@ export type ToolId =
   | 'thermal-load'
   | 'airflow'
   | 'speaker-calibration'
+  | 'scene-intelligence'
   | 'wifi-signal'
   | 'system-responsiveness'
   | 'reliability-score'

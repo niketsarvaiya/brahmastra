@@ -42,6 +42,14 @@ export const TOOLS: ToolMeta[] = [
     tags: ['SPL', 'Audio', 'Delay', 'Crossover'],
   },
   {
+    id: 'scene-intelligence',
+    name: 'Scene Intelligence',
+    description: 'AI-powered luxury lighting scene design. Generate premium scenes by room type, light layers, and client profile — with quality audit and improvement suggestions.',
+    icon: 'Sparkles',
+    category: 'active',
+    tags: ['Lighting', 'Scenes', 'AI', 'Ambiance'],
+  },
+  {
     id: 'network-quality',
     name: 'Network Audit',
     description: 'Signal coverage, internet quality, wired backbone review, and smart home readiness assessment.',
