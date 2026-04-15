@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   CheckSquare,
   Network,
+  Sparkles,
   ChevronRight,
   ChevronLeft,
   Menu,
@@ -29,6 +30,7 @@ const TOOL_ICONS: Record<ToolId, LucideIcon> = {
   'reliability-score': ShieldCheck,
   'av-commissioning': CheckSquare,
   'network-quality': Network,
+  'scene-intelligence': Sparkles,
 };
 
 interface SidebarProps {

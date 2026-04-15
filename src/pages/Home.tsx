@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   CheckSquare,
   Network,
+  Sparkles,
   ArrowRight,
   Activity,
   Layers,
@@ -27,6 +28,7 @@ const TOOL_ICONS: Record<ToolId, LucideIcon> = {
   'reliability-score': ShieldCheck,
   'av-commissioning': CheckSquare,
   'network-quality': Network,
+  'scene-intelligence': Sparkles,
 };
 
 const TOOL_COLORS: Partial<Record<ToolId, { color: string; dim: string }>> = {
